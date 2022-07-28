@@ -292,9 +292,14 @@ module Kitchen
             policy_group: policy_group,
             license: config[:chef_license]
           )
+          pid = Thread.current.object_id
+          info "Thread ##{pid}:: Waiting to acquire the lock"
           Kitchen.mutex.synchronize do
+            info "Thread ##{pid}:: Acquired the lock"
             policy.compile
+            info "Thread ##{pid}:: Releasing the lock"
           end
+          info "Thread ##{pid}:: Lock released"
           policy_name = JSON.parse(IO.read(policy.lockfile))["name"]
           policy_group = config[:policy_group] || "local"
           config[:attributes].merge(policy_name: policy_name, policy_group: policy_group)
