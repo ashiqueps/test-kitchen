@@ -50,7 +50,9 @@ module Kitchen
       default_config :operation_timeout, 60
       default_config :receive_timeout, 70
       default_config :max_wait_until_ready, 600
-      default_config :winrm_transport, :negotiate
+      default_config :winrm_transport, :kerberos
+      default_config :kerberos_service, "HTTP"
+      default_config :kerberos_realm, nil
       default_config :scheme do |transport|
         transport[:winrm_transport] == :ssl ? "https" : "http"
       end
@@ -481,6 +483,11 @@ module Kitchen
           end
           opts[:no_ssl_peer_verification] = data.key?(:no_ssl_peer_verification) ? data[:no_ssl_peer_verification] : true
           opts
+        when :kerberos
+          {
+            service: data[:kerberos_service],
+            realm: data[:kerberos_realm],
+          }
         when :negotiate
           opts[:no_ssl_peer_verification] = true
           opts
